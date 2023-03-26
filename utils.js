@@ -47,15 +47,18 @@ const filterWithMoreSentences = (paragraphs, n) => {
   return paragraphs.filter(paragraph => paragraph.length <= n);
 };
 
-const increaseSentenceIndentation = (paragraph, n) => paragraph.map(sentence => sentence.trimStart().padStart(n));
+// rule 1: add n spaces before each sentence
+const increaseSentenceIndentation = (paragraph, n) => paragraph.map(sentence => sentence.trimStart().padStart(n + sentence.length));
 const convertSentencesIndentations = (paragraphs, n) => paragraphs.map(paragraph => increaseSentenceIndentation(paragraph, n));
 
+// rule 2: add n break lines after each paragraph
 const chunkLast = (paragraph) => [_.dropRight(paragraph), _.last(paragraph)]
-const addLineBreaks = ([rest, last], n) => [...rest, last.padEnd(n, '\n')]
+const addLineBreaks = ([rest, last], n) => [...rest, last.padEnd(n + last.length, '\n')]
 const convertParagraphLineBreaks = (paragraphs, n) => paragraphs.map(paragraph => addLineBreaks(chunkLast(paragraph), n));
 
+// rule 3: trim the paragraph to n max length without cutting words
 const joinParagraph = (paragraph) => paragraph.join('. ') + '.';
-const trimToN = (string, n) => string.substr(0, n);
+const trimToN = (n, string) => string.substr(0, n);
 const trimToLastWord = (string) => string.substr(0, Math.min(string.length, string.lastIndexOf(' ')));
 const splitParagraph = (string) => string.split('.')
   .filter(sentence => sentence.length > 0)
@@ -66,6 +69,7 @@ const trimParagraph = (paragraph, n) => _.flow(
   trimToLastWord,
   splitParagraph
 )(paragraph)
+const trimAllParagraphs = (paragraphs, n) => paragraphs.map(paragraph => trimParagraph(paragraph, n));
 
 export {
   readFile,
@@ -77,5 +81,5 @@ export {
   filterWithMoreSentences,
   convertSentencesIndentations,
   convertParagraphLineBreaks,
-  trimParagraph
+  trimAllParagraphs
 };
