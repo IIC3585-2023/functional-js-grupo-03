@@ -29,6 +29,30 @@ const writeFileData = (path, data) => {
   });
 };
 
+// rule 1: add n spaces before each sentence
+const increaseSentenceIndentation = (paragraph, n) => paragraph.map(sentence => sentence.trimStart().padStart(n + sentence.length));
+const convertSentencesIndentations = (paragraphs, n) => paragraphs.map(paragraph => increaseSentenceIndentation(paragraph, n));
+
+// rule 2: add n break lines after each paragraph
+const chunkLast = (paragraph) => [_.dropRight(paragraph), _.last(paragraph)]
+const addLineBreaks = ([rest, last], n) => [...rest, last.padEnd(n + last.length, '\n')]
+const convertParagraphLineBreaks = (paragraphs, n) => paragraphs.map(paragraph => addLineBreaks(chunkLast(paragraph), n));
+
+// rule 3: trim the paragraph to n max length without cutting words
+const joinParagraph = (paragraph) => paragraph.join('. ') + '.';
+const trimToN = (n, string) => string.substr(0, n);
+const trimToLastWord = (string) => string.substr(0, Math.min(string.length, string.lastIndexOf(' ')));
+const splitParagraph = (string) => string.split('.')
+  .filter(sentence => sentence.length > 0)
+  .map(sentence => sentence.trim());
+const trimParagraph = (paragraph, n) => _.flow(
+  joinParagraph,
+  trimToN.bind(this, n),
+  trimToLastWord,
+  splitParagraph
+)(paragraph)
+const trimAllParagraphs = (paragraphs, n) => paragraphs.map(paragraph => trimParagraph(paragraph, n));
+
 const increaseIndentation = ([first, ...rest], n) => [first.padStart(n), ...rest];
 
 // rule 4: each paragraph must have n spaces of indentation
@@ -59,7 +83,7 @@ const takeFirstSentences = (paragraphs, n) => {
   return paragraphs.map(paragraph => paragraph.slice(0, n));
 };
 
-export { 
+export {
   readFile,
   writeFileData,
   parseFileData,
@@ -68,5 +92,8 @@ export {
   filterWithLessSentences,
   filterWithMoreSentences,
   splitParagraphs,
-  takeFirstSentences
+  takeFirstSentences,
+  convertSentencesIndentations,
+  convertParagraphLineBreaks,
+  trimAllParagraphs
 };
