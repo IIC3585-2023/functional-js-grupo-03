@@ -29,24 +29,6 @@ const writeFileData = (path, data) => {
   });
 };
 
-const increaseIndentation = ([first, ...rest], n) => [first.padStart(n), ...rest];
-
-// rule 4: each paragraph must have n spaces of indentation
-const convertParagraphsIndentations = (paragraphs, n) => {
-  return paragraphs.map(paragraph => increaseIndentation(paragraph, n));
-};
-
-
-// rule 5: ignore paragraphs that have less than n sentences
-const filterWithLessSentences = (paragraphs, n) => {
-  return paragraphs.filter(paragraph => paragraph.length >= n);
-};
-
-// rule 6: ignore paragraphs that have more than n sentences
-const filterWithMoreSentences = (paragraphs, n) => {
-  return paragraphs.filter(paragraph => paragraph.length <= n);
-};
-
 // rule 1: add n spaces before each sentence
 const increaseSentenceIndentation = (paragraph, n) => paragraph.map(sentence => sentence.trimStart().padStart(n + sentence.length));
 const convertSentencesIndentations = (paragraphs, n) => paragraphs.map(paragraph => increaseSentenceIndentation(paragraph, n));
@@ -71,6 +53,36 @@ const trimParagraph = (paragraph, n) => _.flow(
 )(paragraph)
 const trimAllParagraphs = (paragraphs, n) => paragraphs.map(paragraph => trimParagraph(paragraph, n));
 
+const increaseIndentation = ([first, ...rest], n) => [first.padStart(n), ...rest];
+
+// rule 4: each paragraph must have n spaces of indentation
+const convertParagraphsIndentations = (paragraphs, n) => {
+  return paragraphs.map(paragraph => increaseIndentation(paragraph, n));
+};
+
+
+// rule 5: ignore paragraphs that have less than n sentences
+const filterWithLessSentences = (paragraphs, n) => {
+  return paragraphs.filter(paragraph => paragraph.length >= n);
+};
+
+// rule 6: ignore paragraphs that have more than n sentences
+const filterWithMoreSentences = (paragraphs, n) => {
+  return paragraphs.filter(paragraph => paragraph.length <= n);
+};
+
+// rule 7: each sentence must appear in separate paragraph
+const splitParagraphs = (paragraphs) => {
+  return paragraphs.reduce((acc, paragraph) => {
+    return acc.concat(paragraph.map(sentence => [sentence]));
+  }, []);
+};
+
+// rule 8: Just n first sentences of each paragraph
+const takeFirstSentences = (paragraphs, n) => {
+  return paragraphs.map(paragraph => paragraph.slice(0, n));
+};
+
 export {
   readFile,
   writeFileData,
@@ -79,6 +91,8 @@ export {
   convertParagraphsIndentations,
   filterWithLessSentences,
   filterWithMoreSentences,
+  splitParagraphs,
+  takeFirstSentences,
   convertSentencesIndentations,
   convertParagraphLineBreaks,
   trimAllParagraphs
