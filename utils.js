@@ -47,6 +47,17 @@ const filterWithMoreSentences = (paragraphs, n) => {
   return paragraphs.filter(paragraph => paragraph.length <= n);
 };
 
+// rule 7: each sentence must appear in separate paragraph
+const splitParagraphs = (paragraphs) => {
+  return paragraphs.reduce((acc, paragraph) => {
+    return acc.concat(paragraph.map(sentence => [sentence]));
+  }, []);
+};
+
+// rule 8: Just n first sentences of each paragraph
+const takeFirstSentences = (paragraphs, n) => {
+  return paragraphs.map(paragraph => paragraph.slice(0, n));
+};
 
 export { 
   readFile,
@@ -55,5 +66,7 @@ export {
   unparseFileData,
   convertParagraphsIndentations,
   filterWithLessSentences,
-  filterWithMoreSentences
+  filterWithMoreSentences,
+  splitParagraphs,
+  takeFirstSentences
 };
